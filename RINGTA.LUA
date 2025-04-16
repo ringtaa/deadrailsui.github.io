@@ -15,6 +15,14 @@ MainFrame.Size = UDim2.new(0, 250, 0, 185)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Theme.Background
+
+-- Rainbow Outline for Main Frame
+local frameOutline = Instance.new("UIStroke")
+frameOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+frameOutline.Color = Color3.fromRGB(255, 0, 0)
+frameOutline.Thickness = 3
+frameOutline.Parent = MainFrame
+
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
 local Title = Instance.new("TextLabel", MainFrame)
@@ -27,7 +35,7 @@ MinimizeButton.Text, MinimizeButton.Size, MinimizeButton.Position = "-", UDim2.n
 MinimizeButton.BackgroundColor3, MinimizeButton.TextColor3 = Theme.Button, Theme.Text
 Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
 
--- Reopen Button (Hidden When UI is Active)
+-- Reopen Button (Hidden When UI is Minimized)
 local ReopenButton = Instance.new("TextButton", ScreenGui)
 ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0.2, 0)
 ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
@@ -36,10 +44,20 @@ Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
 
 -- Dragging State
 local isMinimized = false
-local dragging, dragStart, startPos
+local dragging, dragInput, dragStart, startPos
 
--- Dragging Logic
-MainFrame.InputBegan:Connect(function(input)
+-- Improved Drag Functionality (Only When Not Minimized)
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Title.InputBegan:Connect(function(input)
     if not isMinimized and input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
@@ -53,13 +71,15 @@ MainFrame.InputBegan:Connect(function(input)
     end
 end)
 
-MainFrame.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y
-        )
+Title.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateInput(input)
     end
 end)
 
@@ -67,8 +87,8 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, 0, 0.3, 0), -- Adjusted for minimized height (higher on screen)
-        Size = UDim2.new(0, 250, 0, 50)       -- Shrinks size
+        Position = UDim2.new(0.5, 0, -0.3, 0), -- MUCH higher top-middle position
+        Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
     wait(0.3)
     MainFrame.Visible = false
