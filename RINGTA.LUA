@@ -46,7 +46,7 @@ Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
 local isMinimized = false
 local dragging, dragInput, dragStart, startPos
 
--- Improved Drag Functionality (Only When Not Minimized)
+-- Improved Drag Functionality (Supports Mouse and Touch)
 local function updateInput(input)
     local delta = input.Position - dragStart
     MainFrame.Position = UDim2.new(
@@ -58,7 +58,7 @@ local function updateInput(input)
 end
 
 Title.InputBegan:Connect(function(input)
-    if not isMinimized and input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if not isMinimized and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
@@ -72,7 +72,7 @@ Title.InputBegan:Connect(function(input)
 end)
 
 Title.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
 end)
