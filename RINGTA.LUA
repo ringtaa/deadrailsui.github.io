@@ -19,7 +19,7 @@ MainFrame.BackgroundColor3 = Theme.Background
 -- Rainbow Outline for Main Frame
 local frameOutline = Instance.new("UIStroke")
 frameOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-frameOutline.Color = Color3.fromRGB(255, 0, 0)
+frameOutline.Color = Color3.fromRGB(255, 0, 0) -- Red outline (can be animated to cycle through colors later)
 frameOutline.Thickness = 3
 frameOutline.Parent = MainFrame
 
@@ -87,7 +87,7 @@ end)
 MinimizeButton.MouseButton1Click:Connect(function()
     isMinimized = true -- Disable dragging when minimized
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, 0, -0.3, 0), -- MUCH higher top-middle position
+        Position = UDim2.new(0.5, 0, -0.4, 0), -- MUCH higher top-middle position
         Size = UDim2.new(0, 250, 0, 50)        -- Shrinks size
     }):Play()
     wait(0.3)
