@@ -1,110 +1,379 @@
--- Create the ScreenGui
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "RINGTA BOND FARM"
-screenGui.ResetOnSpawn = false
-screenGui.IgnoreGuiInset = true
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
 
--- Create the main Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0.9, 0, 0.9, 0)
-mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-mainFrame.BorderSizePixel = 0
-mainFrame.BackgroundTransparency = 0
-mainFrame.Parent = screenGui
+local TweenService, UIS, rs = game:GetService("TweenService"), game:GetService("UserInputService"), game:GetService("RunService")
+local player = game:GetService("Players").LocalPlayer
 
--- Optional rounded corners
-local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0.03, 0)
-uiCorner.Parent = mainFrame
+-- Theme Setup
+local Theme = {
+    Background = Color3.fromRGB(15, 15, 15),
+    Button = Color3.fromRGB(30, 30, 30),
+    Text = Color3.fromRGB(255, 255, 255)
+}
 
--- Top title text
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
-titleLabel.Position = UDim2.new(0.5, 0, 0.05, 0) -- Near the top (5% height)
-titleLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "RINGTA BOND FARM"
-titleLabel.TextColor3 = Color3.fromRGB(0, 255, 127)
-titleLabel.TextScaled = true
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.Parent = mainFrame
+-- Main UI
+local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 350, 0, 230)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Theme.Background
 
--- Center text
-local mainLabel = Instance.new("TextLabel")
-mainLabel.Size = UDim2.new(1, 0, 0.2, 0)
-mainLabel.Position = UDim2.new(0.5, 0, 0.25, 0) -- Slightly lower (25% height)
-mainLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-mainLabel.BackgroundTransparency = 1
-mainLabel.Text = "MADE BY RINGTA AND LUSHY LOVER"
-mainLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainLabel.TextScaled = true
-mainLabel.Font = Enum.Font.GothamBold
-mainLabel.Parent = mainFrame
+-- Draggable GUI for PC and Mobile
+local dragToggle = false
+local dragStart = nil
+local startPos = nil
+local dragInput = nil
 
--- Discord link
-local linkLabel = Instance.new("TextLabel")
-linkLabel.Size = UDim2.new(1, 0, 0.1, 0)
-linkLabel.Position = UDim2.new(0.5, 0, 0.5, 0) -- Middle of the frame (50% height)
-linkLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-linkLabel.BackgroundTransparency = 1
-linkLabel.Text = "https://discord.gg/ringta"
-linkLabel.TextColor3 = Color3.fromRGB(180, 180, 255)
-linkLabel.TextScaled = true
-linkLabel.Font = Enum.Font.SourceSansBold
-linkLabel.Parent = mainFrame
-
--- Dynamic text at 90% down
-local dynamicLabel = Instance.new("TextLabel")
-dynamicLabel.Size = UDim2.new(1, 0, 0.1, 0)
-dynamicLabel.Position = UDim2.new(0.5, 0, 0.9, 0) -- Kept at original position
-dynamicLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-dynamicLabel.BackgroundTransparency = 1
-dynamicLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-dynamicLabel.TextScaled = true
-dynamicLabel.Font = Enum.Font.GothamBold
-dynamicLabel.Text = "Starting..." -- Initial text
-dynamicLabel.Parent = mainFrame
-
--- New dynamic bonds collection text at 70% height
-local bondsLabel = Instance.new("TextLabel")
-bondsLabel.Size = UDim2.new(1, 0, 0.1, 0)
-bondsLabel.Position = UDim2.new(0.5, 0, 0.7, 0) -- At 70% height
-bondsLabel.AnchorPoint = Vector2.new(0.5, 0.5)
-bondsLabel.BackgroundTransparency = 1
-bondsLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
-bondsLabel.TextScaled = true
-bondsLabel.Font = Enum.Font.GothamBold
-bondsLabel.Text = "" -- Start with no text
-bondsLabel.Parent = mainFrame
-
--- Timer logic for dynamic text updates
-task.spawn(function()
-    dynamicLabel.Text = "Starting..." -- When executed
-    wait(10)
-    dynamicLabel.Text = "Collecting bonds data"
-    wait(17) -- 10 + 17 = 27 seconds
-    dynamicLabel.Text = "Collecting bonds now"
-    wait(35) -- 27 + 35 = 62 seconds
-    dynamicLabel.Text = "Restarting script"
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragToggle = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+    end
 end)
 
--- Timer logic for bonds collection with controlled pace and randomness
-task.spawn(function()
-    wait(28) -- Start updating bonds at 28 seconds
-    local bonds = 1 -- Start from 1 bond
-    local targetBonds = math.random(70, 90) -- Random target between 70 and 90 bonds
-    local totalTime = 34 -- Total time to reach the target (seconds)
-    local elapsed = 0 -- Track elapsed time
-    while bonds < targetBonds and elapsed < totalTime do
-        local increment = math.random(2, 5) -- Randomly increment by 2-5 bonds
-        wait(totalTime / targetBonds) -- Proportional wait time per increment
-        bonds = math.min(bonds + increment, targetBonds) -- Ensure bonds don’t exceed target
-        bondsLabel.Text = tostring(bonds) .. " bonds being collected"
-        elapsed = elapsed + (totalTime / targetBonds)
+MainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
     end
-    bondsLabel.Text = tostring(targetBonds) .. " bonds collected" -- Final result
+end)
+
+MainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragToggle = false
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragToggle and input == dragInput then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+
+-- Rainbow Outline for Main Frame
+local frameOutline = Instance.new("UIStroke")
+frameOutline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+frameOutline.Thickness = 3
+frameOutline.Parent = MainFrame
+local hue = 0
+rs.RenderStepped:Connect(function()
+    hue = (hue + 0.005) % 1
+    frameOutline.Color = Color3.fromHSV(hue, 1, 1)
+end)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Text, Title.Size, Title.Position = "RINGTA SCRIPTS", UDim2.new(1, -20, 0, 20), UDim2.new(0, 10, 0, 5)
+Title.BackgroundTransparency, Title.TextColor3, Title.Font, Title.TextSize = 1, Theme.Text, Enum.Font.GothamBold, 14
+
+-- Tabs Frame
+local TabsFrame = Instance.new("Frame", MainFrame)
+TabsFrame.Size = UDim2.new(0, 100, 1, -40)
+TabsFrame.Position = UDim2.new(0, 10, 0, 30)
+TabsFrame.BackgroundColor3 = Theme.Button
+Instance.new("UICorner", TabsFrame).CornerRadius = UDim.new(0, 6)
+
+-- Tab Buttons
+local Tabs = {}
+local TabContentFrame = Instance.new("Frame", MainFrame)
+TabContentFrame.Size = UDim2.new(1, -120, 1, -40)
+TabContentFrame.Position = UDim2.new(0, 110, 0, 30)
+TabContentFrame.BackgroundColor3 = Theme.Background
+TabContentFrame.ClipsDescendants = true
+Instance.new("UICorner", TabContentFrame).CornerRadius = UDim.new(0, 6)
+
+local function CreateTab(tabName)
+    local TabButton = Instance.new("TextButton", TabsFrame)
+    TabButton.Text, TabButton.Size, TabButton.Position = tabName, UDim2.new(1, -10, 0, 30), UDim2.new(0, 5, 0, (#Tabs * 35))
+    TabButton.BackgroundColor3, TabButton.TextColor3 = Theme.Button, Theme.Text
+    Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 6)
+    
+    local TabFrame = Instance.new("Frame", TabContentFrame)
+    TabFrame.Size = UDim2.new(1, 0, 1, 0)
+    TabFrame.Visible = (#Tabs == 0) -- Default to showing the first tab
+    table.insert(Tabs, TabFrame)
+    
+    TabButton.MouseButton1Click:Connect(function()
+        for _, frame in pairs(Tabs) do
+            frame.Visible = false
+        end
+        TabFrame.Visible = true
+    end)
+    return TabFrame
+end
+
+-- Button Template
+local function CreateButton(parent, text, callback, position)
+    local Button = Instance.new("TextButton", parent)
+    Button.Text, Button.Size, Button.Position = text, UDim2.new(0.8, 0, 0.12, 0), position
+    Button.BackgroundColor3, Button.TextColor3 = Theme.Button, Theme.Text
+    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+
+    -- Button Hover Effects
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    end)
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Theme.Button
+    end)
+
+    Button.MouseButton1Click:Connect(callback)
+end
+
+-- Main Tab for Teleports
+local MainTab = CreateTab("Main")
+
+CreateButton(MainTab, "TP to Train", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))()
+end, UDim2.new(0.1, 0, 0.2, 0))
+
+CreateButton(MainTab, "TP to Sterling", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/sterlingnotifcation.github.io/refs/heads/main/Sterling.lua'))()
+end, UDim2.new(0.1, 0, 0.34, 0))
+
+CreateButton(MainTab, "TP to TeslaLab", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/tptotesla.github.io/refs/heads/main/Tptotesla.lua'))()
+end, UDim2.new(0.1, 0, 0.48, 0))
+
+CreateButton(MainTab, "TP to Castle", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/castletpfast.github.io/refs/heads/main/FASTCASTLE.lua"))()
+end, UDim2.new(0.1, 0, 0.62, 0))
+
+CreateButton(MainTab, "TP to Fort", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tpfort.github.io/refs/heads/main/Tpfort.lua"))()
+end, UDim2.new(0.1, 0, 0.76, 0))
+
+-- Other Tab for Additional Features
+local OtherTab = CreateTab("Other")
+
+CreateButton(OtherTab, "TP to End", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hbjrev/tpend.github.io/refs/heads/main/ringta.lua"))()
+end, UDim2.new(0.1, 0, 0.06, 0))
+
+
+
+CreateButton(OtherTab, "TP to Bank", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Tptobank.github.io/refs/heads/main/Banktp.lua"))()
+end, UDim2.new(0.1, 0, 0.2, 0))
+
+
+-- Gun Kill Aura Toggle with Shading
+local gunKillAuraActive = false -- Keeps track of the current state
+
+-- Gun Kill Aura Button
+local GunKillAuraButton = Instance.new("TextButton", OtherTab)
+GunKillAuraButton.Text, GunKillAuraButton.Size, GunKillAuraButton.Position = "Gun Aura (Kill Mobs): OFF", UDim2.new(0.8, 0, 0.12, 0), UDim2.new(0.1, 0, 0.34, 0)
+GunKillAuraButton.BackgroundColor3, GunKillAuraButton.TextColor3 = Color3.fromRGB(30, 30, 30), Theme.Text -- Default OFF color
+Instance.new("UICorner", GunKillAuraButton).CornerRadius = UDim.new(0, 6)
+
+-- Button Hover Effects
+GunKillAuraButton.MouseEnter:Connect(function()
+    GunKillAuraButton.BackgroundColor3 = gunKillAuraActive and Color3.fromRGB(50, 205, 50) or Color3.fromRGB(40, 40, 40)
+end)
+GunKillAuraButton.MouseLeave:Connect(function()
+    GunKillAuraButton.BackgroundColor3 = gunKillAuraActive and Color3.fromRGB(50, 205, 50) or Color3.fromRGB(30, 30, 30)
+end)
+
+-- Toggle Functionality
+GunKillAuraButton.MouseButton1Click:Connect(function()
+    gunKillAuraActive = not gunKillAuraActive -- Toggle the active state
+
+    if gunKillAuraActive then
+        GunKillAuraButton.Text = "Gun Aura (Kill Mobs): ON"
+        GunKillAuraButton.BackgroundColor3 = Color3.fromRGB(50, 205, 50) -- Green for ON state
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/Aimbot.github.io/refs/heads/main/Kill.lua"))()
+    else
+        GunKillAuraButton.Text = "Gun Aura (Kill Mobs): OFF"
+        GunKillAuraButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Gray for OFF state
+        -- Add logic to disable "Gun Kill Aura" if needed
+    end
+end)
+
+
+-- Noclip ON Button
+local NoclipOnButton = Instance.new("TextButton", OtherTab)
+NoclipOnButton.Text, NoclipOnButton.Size, NoclipOnButton.Position = "Noclip: ON", UDim2.new(0.8, 0, 0.12, 0), UDim2.new(0.1, 0, 0.48, 0)
+NoclipOnButton.BackgroundColor3, NoclipOnButton.TextColor3 = Color3.fromRGB(30, 30, 30), Theme.Text
+Instance.new("UICorner", NoclipOnButton).CornerRadius = UDim.new(0, 6)
+
+-- Noclip OFF Button
+local NoclipOffButton = Instance.new("TextButton", OtherTab)
+NoclipOffButton.Text, NoclipOffButton.Size, NoclipOffButton.Position = "Noclip: OFF", UDim2.new(0.8, 0, 0.12, 0), UDim2.new(0.1, 0, 0.62, 0)
+NoclipOffButton.BackgroundColor3, NoclipOffButton.TextColor3 = Color3.fromRGB(30, 30, 30), Theme.Text
+Instance.new("UICorner", NoclipOffButton).CornerRadius = UDim.new(0, 6)
+
+local noclipConnection -- To store the active loop for noclip
+
+-- Function to enable noclip
+local function enableNoclip()
+    if noclipConnection then return end -- Prevent multiple connections
+    noclipConnection = game:GetService("RunService").Stepped:Connect(function()
+        if player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false -- Disable collisions
+                end
+            end
+        end
+    end)
+end
+
+-- Function to disable noclip
+local function disableNoclip()
+    if noclipConnection then
+        noclipConnection:Disconnect() -- Stop the loop
+        noclipConnection = nil
+    end
+    if player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = true -- Enable collisions
+            end
+        end
+    end
+end
+
+-- Button Functionality for Noclip ON
+NoclipOnButton.MouseButton1Click:Connect(function()
+    enableNoclip()
+    NoclipOnButton.BackgroundColor3 = Color3.fromRGB(50, 205, 50) -- Green for visual feedback
+    NoclipOffButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Reset OFF button color
+end)
+
+-- Button Functionality for Noclip OFF
+NoclipOffButton.MouseButton1Click:Connect(function()
+    disableNoclip()
+    NoclipOnButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Reset ON button color
+    NoclipOffButton.BackgroundColor3 = Color3.fromRGB(205, 50, 50) -- Red for visual feedback
+end)
+
+
+-- Anti-Void Button
+local antiVoidActive = false -- Keeps track of whether Anti-Void is active
+local antiVoidConnection -- Stores the connection for the loop
+
+local AntiVoidButton = Instance.new("TextButton", OtherTab)
+AntiVoidButton.Text, AntiVoidButton.Size, AntiVoidButton.Position = "Anti-Void: OFF", UDim2.new(0.8, 0, 0.12, 0), UDim2.new(0.1, 0, 0.76, 0)
+AntiVoidButton.BackgroundColor3, AntiVoidButton.TextColor3 = Color3.fromRGB(30, 30, 30), Theme.Text
+Instance.new("UICorner", AntiVoidButton).CornerRadius = UDim.new(0, 6)
+
+-- Button Hover Effects
+AntiVoidButton.MouseEnter:Connect(function()
+    AntiVoidButton.BackgroundColor3 = antiVoidActive and Color3.fromRGB(50, 205, 50) or Color3.fromRGB(40, 40, 40)
+end)
+AntiVoidButton.MouseLeave:Connect(function()
+    AntiVoidButton.BackgroundColor3 = antiVoidActive and Color3.fromRGB(50, 205, 50) or Color3.fromRGB(30, 30, 30)
+end)
+
+-- Anti-Void Logic
+local function startAntiVoid()
+    antiVoidConnection = game:GetService("RunService").Stepped:Connect(function()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local rootPart = player.Character.HumanoidRootPart
+            if rootPart.Position.Y < -1 then -- Check if the player is below y = -1
+                loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))() -- Teleport to train
+            end
+        end
+    end)
+end
+
+local function stopAntiVoid()
+    if antiVoidConnection then
+        antiVoidConnection:Disconnect() -- Stop monitoring position
+        antiVoidConnection = nil
+    end
+end
+
+-- Button Functionality
+AntiVoidButton.MouseButton1Click:Connect(function()
+    antiVoidActive = not antiVoidActive -- Toggle the active state
+
+    if antiVoidActive then
+        AntiVoidButton.Text = "Anti-Void: ON"
+        AntiVoidButton.BackgroundColor3 = Color3.fromRGB(50, 205, 50) -- Green for ON state
+        startAntiVoid() -- Start monitoring position
+    else
+        AntiVoidButton.Text = "Anti-Void: OFF"
+        AntiVoidButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Gray for OFF state
+        stopAntiVoid() -- Stop monitoring position
+    end
+end)
+
+
+
+
+-- Towns Tab for Town Teleports
+local TownsTab = CreateTab("Towns")
+
+CreateButton(TownsTab, "Town 1", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown1.github.io/refs/heads/main/town1.lua"))()
+end, UDim2.new(0.1, 0, 0.2, 0))
+
+CreateButton(TownsTab, "Town 2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown2.github.io/refs/heads/main/town2.lua"))()
+end, UDim2.new(0.1, 0, 0.34, 0))
+
+CreateButton(TownsTab, "Town 3", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown3.github.io/refs/heads/main/town3.lua"))()
+end, UDim2.new(0.1, 0, 0.48, 0))
+
+CreateButton(TownsTab, "Town 4", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown4.github.io/refs/heads/main/town4.lua"))()
+end, UDim2.new(0.1, 0, 0.62, 0))
+
+CreateButton(TownsTab, "Town 5", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown5.github.io/refs/heads/main/town5.lua"))()
+end, UDim2.new(0.1, 0, 0.76, 0))
+
+CreateButton(TownsTab, "Town 6", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown6.github.io/refs/heads/main/town6.lua"))()
+end, UDim2.new(0.1, 0, 0.9, 0))
+
+-- Minimize Button
+local MinimizeButton = Instance.new("TextButton", MainFrame)
+MinimizeButton.Text, MinimizeButton.Size, MinimizeButton.Position = "-", UDim2.new(0, 20, 0, 20), UDim2.new(1, -25, 0, 5)
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0) -- Changed to bright green for better visibility
+MinimizeButton.TextColor3 = Theme.Text
+Instance.new("UICorner", MinimizeButton).CornerRadius = UDim.new(0, 6)
+
+-- Reopen Button (Hidden When UI is Minimized)
+local ReopenButton = Instance.new("TextButton", ScreenGui)
+ReopenButton.Text, ReopenButton.Size, ReopenButton.Position = "Open RINGTA SCRIPTS", UDim2.new(0, 150, 0, 30), UDim2.new(0.5, 0, 0, -22)
+ReopenButton.AnchorPoint, ReopenButton.Visible = Vector2.new(0.5, 0), false
+ReopenButton.BackgroundColor3, ReopenButton.TextColor3 = Theme.Button, Theme.Text
+Instance.new("UICorner", ReopenButton).CornerRadius = UDim.new(0, 6)
+
+local isMinimized = false
+
+-- Minimize Functionality
+MinimizeButton.MouseButton1Click:Connect(function()
+    if not isMinimized then -- Only minimize if not already minimized
+        isMinimized = true
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, 0, -0.7, 0),
+            Size = UDim2.new(0, 250, 0, 50)
+        }):Play()
+        wait(0.3)
+        MainFrame.Visible = false
+        ReopenButton.Visible = true
+    end
+end)
+
+-- Reopen Functionality
+ReopenButton.MouseButton1Click:Connect(function()
+    if isMinimized then -- Only reopen if currently minimized
+        isMinimized = false
+        ReopenButton.Visible = false
+        MainFrame.Visible = true
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Size = UDim2.new(0, 350, 0, 230)
+        }):Play()
+    end
 end)
