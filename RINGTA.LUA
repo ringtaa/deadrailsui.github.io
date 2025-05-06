@@ -271,17 +271,17 @@ AntiVoidButton.MouseLeave:Connect(function()
     AntiVoidButton.BackgroundColor3 = antiVoidActive and Color3.fromRGB(50, 205, 50) or Color3.fromRGB(30, 30, 30)
 end)
 
--- Anti-Void Logic
 local function startAntiVoid()
     antiVoidConnection = game:GetService("RunService").Stepped:Connect(function()
         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             local rootPart = player.Character.HumanoidRootPart
             if rootPart.Position.Y < -1 then -- Check if the player is below y = -1
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/NEWTPTRAIN.github.io/refs/heads/main/TRAIN.LUA"))() -- Teleport to train
+                rootPart.CFrame = CFrame.new(70, 5, 30000) -- Teleports directly to coordinates
             end
         end
     end)
 end
+
 
 local function stopAntiVoid()
     if antiVoidConnection then
