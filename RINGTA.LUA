@@ -277,7 +277,7 @@ local function startAntiVoid()
         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
             local rootPart = player.Character.HumanoidRootPart
             if rootPart.Position.Y < -1 then -- Check if the player is below y = -1
-                loadstring(game:HttpGet('https://raw.githubusercontent.com/ringtaa/train.github.io/refs/heads/main/train.lua'))() -- Teleport to train
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/ringtaa/NEWTPTRAIN.github.io/refs/heads/main/TRAIN.LUA"))() -- Teleport to train
             end
         end
     end)
