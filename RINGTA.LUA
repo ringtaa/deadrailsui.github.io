@@ -335,8 +335,7 @@ CreateButton(TownsTab, "Town 6", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ringta9321/tptown6.github.io/refs/heads/main/town6.lua"))()
 end, UDim2.new(0.1, 0, 0.9, 0))
 
-
-local Bypass = Bypass("Bypass")
+local Bypass = CreateTab("Bypass")
 
 CreateButton(Bypass, "Bypass AC", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/fjruie/bypass.github.io/refs/heads/main/ringta.lua"))()
