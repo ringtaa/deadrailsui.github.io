@@ -337,15 +337,15 @@ end, UDim2.new(0.1, 0, 0.9, 0))
 
 local BypassTab = CreateTab("Bypass")
 
-CreateButton(Bypass, "Bypass AC", function()
+CreateButton(BypassTab, "Bypass AC", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/fjruie/bypass.github.io/refs/heads/main/ringta.lua"))()
 end, UDim2.new(0.1, 0, 0.06, 0))
 
-CreateButton(Bypass, "Sterling Town", function()
+CreateButton(BypassTab, "Sterling Town", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/fjruie/newsterlingtp.github.io/refs/heads/main/RINGTA.lua"))()
 end, UDim2.new(0.1, 0, 0.2, 0))
 
-CreateButton(Bypass, "Jade Sword", function()
+CreateButton(BypassTab, "Jade Sword", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/fjruie/tpjadesword.github.io/refs/heads/main/ringta.lua"))()
 end, UDim2.new(0.1, 0, 0.34, 0))
 
